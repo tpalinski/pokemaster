@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PokemonCollection;
+use App\Http\Resources\PokemonDetails;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
@@ -28,7 +29,7 @@ class PokemonController extends Controller
             return $item;
         });
         $page = request()->get('page');
-        $perPage = 10;
+        $perPage = 100;
         $paginator = new LengthAwarePaginator(
             $collected->forPage($page, $perPage), $collected->count(), $perPage, $page
         );
@@ -59,7 +60,12 @@ class PokemonController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $pokeResponse = Http::get($this->POKEMON_URL . "/" . $id);
+        $body = $pokeResponse->body();
+        $deserialized = json_decode($body);
+        return view("pokemon.details", [
+            "pokemonData" => $deserialized
+        ]);
     }
 
     /**
