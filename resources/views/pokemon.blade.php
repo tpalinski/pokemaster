@@ -17,6 +17,15 @@
     </head>
     <body class="font-sans antialiased dark:bg-black dark:text-white/50">
         <h1 class="text-6xl text-white text-center"> Pokemaster </h1>
+        <div class="flex flex-col items-center justify-start">
+            @foreach ($pokemonData as $pokemon)
+                <div class="bg-white text-black rounded-xl gap-4 flex">
+                    <h4> {{$pokemon->name}} </h4>
+                    <a href="{{url("/pokemon/" . $pokemon->id)}}"> See pokemon details </a>
+                </div>
+            @endforeach
 
+            <div class="text-black">{{$pokemonData->links()}}</div>
+        </div>
     </body>
 </html>

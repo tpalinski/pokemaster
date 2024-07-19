@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PokemonCollection;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
 
 class PokemonController extends Controller
@@ -20,7 +22,20 @@ class PokemonController extends Controller
         ]);
         // Could do some better error handling in the future
         $body = $pokeResponse->body();
-        return view('pokemon');
+        $collected = collect(json_decode($body)->results)->map(function($item, $key) {
+            $item->id = basename($item->url);
+            $item->url = null;
+            return $item;
+        });
+        $page = request()->get('page');
+        $perPage = 10;
+        $paginator = new LengthAwarePaginator(
+            $collected->forPage($page, $perPage), $collected->count(), $perPage, $page
+        );
+        $pokemon = PokemonCollection::make($paginator);
+        return view('pokemon', [
+            'pokemonData' => $pokemon
+        ]);
     }
 
     /**

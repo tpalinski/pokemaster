@@ -9,3 +9,6 @@ Route::get('/', function () {
 
 Route::resource('/', PokemonController::class)
     ->only(["index"]);
+
+Route::resource('/pokemon', PokemonController::class)
+    ->only(["show"]);
