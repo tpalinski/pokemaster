@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PokemonCollection;
-use App\Http\Resources\PokemonDetails;
+use App\Models\Pokemon;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Http;
 
 class PokemonController extends Controller
@@ -17,25 +15,9 @@ class PokemonController extends Controller
      */
     public function index()
     {
-        $pokeResponse = Http::get($this->POKEMON_URL, [
-            "offset" => 0,
-            "limit" => 100000,
-        ]);
-        // Could do some better error handling in the future
-        $body = $pokeResponse->body();
-        $collected = collect(json_decode($body)->results)->map(function($item, $key) {
-            $item->id = basename($item->url);
-            $item->url = null;
-            return $item;
-        });
-        $page = request()->get('page');
-        $perPage = 100;
-        $paginator = new LengthAwarePaginator(
-            $collected->forPage($page, $perPage), $collected->count(), $perPage, $page
-        );
-        $pokemon = PokemonCollection::make($paginator);
+        $pokemonData = Pokemon::paginate(100);
         return view('pokemon', [
-            'pokemonData' => $pokemon
+            'pokemonData' => $pokemonData,
         ]);
     }
 
@@ -77,11 +59,16 @@ class PokemonController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Favourite/unfavourite pokemon
      */
     public function update(Request $request, string $id)
     {
-        //
+        if ($request->session()->has($id)) {
+            $request->session()->forget($id);
+        } else {
+            $request->session()->put($id, "fav");
+        }
+        return $this->show($id);
     }
 
     /**
