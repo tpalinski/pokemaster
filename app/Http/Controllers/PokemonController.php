@@ -42,11 +42,9 @@ class PokemonController extends Controller
      */
     public function show(string $id)
     {
-        $pokeResponse = Http::get($this->POKEMON_URL . "/" . $id);
-        $body = $pokeResponse->body();
-        $deserialized = json_decode($body);
+        $pokemon = Pokemon::where('apiId', $id)->firstOrFail();
         return view("pokemon.details", [
-            "pokemonData" => $deserialized
+            "pokemonData" => $pokemon
         ]);
     }
 
