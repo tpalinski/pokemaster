@@ -13,6 +13,7 @@
     </head>
     <body class="font-sans antialiased bg-yellow-400 flex flex-col items-center">
         <img src="{{asset("img/logo.png")}}" alt="Pokemaster logo" />
+        <x-nav> </x-nav>
         <div class="flex-col flex items-center w-full">
             {{$slot}}
         </div>

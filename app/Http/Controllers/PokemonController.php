@@ -66,7 +66,7 @@ class PokemonController extends Controller
         } else {
             $request->session()->put($id, "fav");
         }
-        return $this->show($id);
+        return back();
     }
 
     /**
