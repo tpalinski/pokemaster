@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Http;
 class PokemonController extends Controller
 {
 
-    private $POKEMON_URL = "https://pokeapi.co/api/v2/pokemon";
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $pokemonData = Pokemon::paginate(100);
+        $searchTerm = request('search');
+        $pokemonData = Pokemon::where('name', 'LIKE', "%{$searchTerm}%")->paginate(100)->withQueryString();
         return view('pokemon', [
             'pokemonData' => $pokemonData,
         ]);
