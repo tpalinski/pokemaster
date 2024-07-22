@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pokemon;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class PokemonController extends Controller
@@ -43,8 +45,14 @@ class PokemonController extends Controller
     public function show(string $id)
     {
         $pokemon = Pokemon::where('apiId', $id)->firstOrFail();
+        $isFavourite = false;
+        if (Auth::user() != null) {
+            $user = Auth::user();
+            $isFavourite = $pokemon->users()->where('user_id', $user->id)->exists();
+        }
         return view("pokemon.details", [
-            "pokemonData" => $pokemon
+            "pokemonData" => $pokemon,
+            "isFavourite" => $isFavourite,
         ]);
     }
 
@@ -61,10 +69,13 @@ class PokemonController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if ($request->session()->has($id)) {
-            $request->session()->forget($id);
+        $user = Auth::id();
+        $pokemon = Pokemon::where('apiId', $id)->firstOrFail();
+        $isFavourite = User::find($user)->favourites()->where('pokemon_id', $pokemon->id)->exists();
+        if ($isFavourite) {
+            $pokemon->users()->detach($user);
         } else {
-            $request->session()->put($id, "fav");
+            $pokemon->users()->attach($user);
         }
         return back();
     }
